@@ -10,12 +10,6 @@ type Templates struct {
 	template *template.Template
 }
 
-type Links struct {
-	ID   string
-	Text string
-	Link string
-}
-
 func LoadTemplate(path string) (*Templates, error) {
 	tmpt, err := template.ParseFiles(path)
 	if err != nil {

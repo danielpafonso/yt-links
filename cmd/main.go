@@ -25,6 +25,12 @@ func main() {
 	flag.Parse()
 
 	// "DB" handler
+	dt, err := internal.ReadStorage("storage.json")
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("%+v\n", dt)
+
 	data := []internal.Links{
 		{
 			ID:   "g",
@@ -37,6 +43,10 @@ func main() {
 			Link: "https://www.youtube.com",
 		},
 	}
+	// err = internal.WriteStorage("storage.json", data)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// Read template
 	template, err := internal.LoadTemplate(templatePath)
