@@ -19,11 +19,9 @@ func LoadTemplate(path string) (*Templates, error) {
 }
 
 func (tmpl *Templates) ExecuteTemplate(data []Links) http.HandlerFunc {
-	log.Println("hit execute template")
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("end execute template, %s\n", r.URL)
+		log.Printf("Webpage request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 		err := tmpl.template.Execute(w, data)
-		log.Println("end execute template")
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))

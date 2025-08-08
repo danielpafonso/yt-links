@@ -8,11 +8,6 @@ import (
 	"youtube-links/internal"
 )
 
-func serveWebpage(w http.ResponseWriter, r *http.Request) {
-	log.Println("Webpage request by: " + r.RemoteAddr)
-	w.Write([]byte("Hello, you hit our general endpoint"))
-}
-
 func main() {
 	// command line arguments
 	var serverPort string
@@ -25,28 +20,10 @@ func main() {
 	flag.Parse()
 
 	// "DB" handler
-	dt, err := internal.ReadStorage("storage.json")
+	data, err := internal.ReadStorage("storage.json")
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("%+v\n", dt)
-
-	data := []internal.Links{
-		{
-			ID:   "g",
-			Text: "google",
-			Link: "https://www.google.com",
-		},
-		{
-			ID:   "y",
-			Text: "youtube",
-			Link: "https://www.youtube.com",
-		},
-	}
-	// err = internal.WriteStorage("storage.json", data)
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	// Read template
 	template, err := internal.LoadTemplate(templatePath)
