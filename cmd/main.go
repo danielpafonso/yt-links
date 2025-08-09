@@ -37,11 +37,8 @@ func main() {
 	rootRouter.HandleFunc("/", template.ExecuteTemplate(data))
 
 	// api endpoints
-	// apiRouter := http.NewServeMux()
-	// apiRouter.HandleFunc("POST /", apiHandler.InsertData)
-	// apiRouter.HandleFunc("DELETE /{id}", apiHandler.DeleteById)
-	// // add api sub routing
-	// rootRouter.Handle("/links/", http.StripPrefix("/links", apiRouter))
+	rootRouter.HandleFunc("POST /links", data.InsertData)
+	rootRouter.HandleFunc("DELETE /links/{id}", data.DeleteById)
 
 	server := http.Server{
 		Addr:    serverAddress + ":" + serverPort,

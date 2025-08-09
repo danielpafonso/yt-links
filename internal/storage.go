@@ -3,10 +3,19 @@ package internal
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
 )
 
 type Link struct {
+	Text string `json:"text"`
+	Link string `json:"link"`
+}
+
+type postLink struct {
+	Id   string `json:"id"`
 	Text string `json:"text"`
 	Link string `json:"link"`
 }
@@ -44,4 +53,25 @@ func WriteStorage(path string, data mapLink) error {
 		return err
 	}
 	return nil
+}
+
+// API Operations
+// POST
+func (mpl *mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
+	// read body
+	body, err := io.ReadAll(r.Body)
+	if err != nil || len(body) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(http.StatusText(http.StatusBadRequest)))
+		return
+	}
+
+	fmt.Println(string(body))
+}
+
+// DELETE
+func (mpl *mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
+	// read path
+	requestId := r.PathValue("id")
+	fmt.Printf("delete id: %s\n", requestId)
 }
