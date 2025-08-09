@@ -10,10 +10,10 @@ li {
 
 <h2>Youtube links</h2>
 <ul style="list-style-type:none;">
-  {{range .}}
+  {{range $id, $val := .}}
   <li>
-    <a id="{{.ID}}" href="{{.Link}}">
-      {{.Text}}
+    <a id="{{$id}}" href="{{$val.Link}}">
+      {{$val.Text}}
     </a>
   </li>
   {{end}}

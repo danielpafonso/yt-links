@@ -6,14 +6,16 @@ import (
 	"os"
 )
 
-type Links struct {
-	ID   string `json:"id"`
+type Link struct {
 	Text string `json:"text"`
 	Link string `json:"link"`
 }
 
-func ReadStorage(path string) ([]Links, error) {
-	data := make([]Links, 0)
+type mapLink map[string]Link
+
+// File Operations
+func ReadStorage(path string) (mapLink, error) {
+	data := make(map[string]Link)
 	// read data
 	fdata, err := os.ReadFile(path)
 	if err != nil {
@@ -32,8 +34,7 @@ func ReadStorage(path string) ([]Links, error) {
 	return data, nil
 }
 
-func WriteStorage(path string, data []Links) error {
-
+func WriteStorage(path string, data mapLink) error {
 	jsonString, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err

@@ -18,7 +18,7 @@ func LoadTemplate(path string) (*Templates, error) {
 	return &Templates{template: tmpt}, nil
 }
 
-func (tmpl *Templates) ExecuteTemplate(data []Links) http.HandlerFunc {
+func (tmpl *Templates) ExecuteTemplate(data mapLink) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Webpage request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 		err := tmpl.template.Execute(w, data)
