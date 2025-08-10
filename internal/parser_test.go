@@ -1,35 +1,54 @@
 package internal
 
 import (
+	"fmt"
+	"math/rand/v2"
 	"testing"
 )
 
+const (
+	letters = "abcdefghijklmnopqrstuvwxyz-0987654321_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	size    = int64(len(letters))
+)
+
+func randomId(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[rand.Int64()%size]
+	}
+	return string(b)
+}
+
 func TestLinkParserValidLinks(t *testing.T) {
 	var testsMap = []struct {
-		link     string
-		expected string
-		start    string
+		link          string
+		expectedStart string
 	}{
-		{"https://www.youtube.com/watch?v=abcdefghijk", "abcdefghijk", ""},
-		{"https://www.youtube.com/watch?v=ABCDEFGHIJK&t=123s", "ABCDEFGHIJK", "123s"},
-		{"https://www.youtube.com/watch?t=123&v=zyxwvutsrqp", "zyxwvutsrqp", "123"},
-		{"https://youtu.be/ZYXWVUTSRQP?si=0000000000000000", "ZYXWVUTSRQP", ""},
-		{"https://youtu.be/12345678901?si=0000000000000000&t=123", "12345678901", "123"},
-		{"https://www.youtube.com/watch?v=a1b2c3d3e4f&list=WL&index=2&pp=gAQBiAQB", "a1b2c3d3e4f", ""},
-		{"https://www.youtube.com/embed/A1B2C3D3E4F?si=ilpCXG_BnFBzj8q9", "A1B2C3D3E4F", ""},
-		{"https://www.youtube.com/embed/0-0_0-0_0-0?si=ilpCXG_BnFBzj8q9&amp;start=6", "0-0_0-0_0-0", "6"},
+		{"https://www.youtube.com/watch?v=%s", ""},
+		{"https://www.youtube.com/watch?v=%s&t=123s", "123s"},
+		{"https://www.youtube.com/watch?t=123&v=%s", "123"},
+		{"https://youtu.be/%s?si=0000000000000000", ""},
+		{"https://youtu.be/%s?si=0000000000000000&t=123", "123"},
+		{"https://www.youtube.com/watch?v=%s&list=WL&index=2&pp=gAQBiAQB", ""},
+		{"https://www.youtube.com/embed/%s?si=ilpCXG_BnFBzj8q9", ""},
+		{"https://www.youtube.com/embed/%s?si=ilpCXG_BnFBzj8q9&amp;start=6", "6"},
 	}
 
 	for _, test := range testsMap {
 		t.Run("", func(t *testing.T) {
-			id, start, err := LinkParser(test.link)
+			// generate random id
+			rid := randomId(11)
+			fmt.Println(rid)
+			link := fmt.Sprintf(test.link, rid)
+
+			id, start, err := LinkParser(link)
 			if err != nil {
 				t.Errorf("got error: %s", err)
 			}
-			if id != test.expected {
+			if id != rid {
 				t.Errorf("got id %s when parsing %s", id, test.link)
 			}
-			if start != test.start {
+			if start != test.expectedStart {
 				t.Errorf("got start %s when parsing %s", start, test.link)
 			}
 		})
