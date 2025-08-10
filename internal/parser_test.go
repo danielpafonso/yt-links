@@ -53,3 +53,25 @@ func TestLinkParserValidLinks(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkParserInvalidLinks(t *testing.T) {
+	var testList = []string{
+		"https://www.example.com",
+		"https://www.youtube.com/watch?t=123s",
+		"https://www.youtube.com/watch/bananas",
+		"https://youtu.be/",
+		"https://youtu.be",
+		"https://www.youtube.com/embed/",
+		"https://www.youtube.com/embed",
+		"https://www.youtube.com/bananas",
+	}
+
+	for _, test := range testList {
+		t.Run("", func(t *testing.T) {
+			_, _, err := LinkParser(test)
+			if err == nil {
+				t.Errorf("no error when parsing %s", test)
+			}
+		})
+	}
+}
