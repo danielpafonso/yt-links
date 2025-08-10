@@ -2,7 +2,6 @@ package internal
 
 import (
 	"errors"
-	"fmt"
 	"html"
 	"net/url"
 	"strings"
@@ -43,7 +42,6 @@ func LinkParser(link string) (string, string, error) {
 			return "", "", errors.New("url without video id")
 		}
 		start := params["start"]
-		fmt.Println(start)
 		if len(start) > 0 {
 			return urlLink.Path[7:], start[0], nil
 		} else {

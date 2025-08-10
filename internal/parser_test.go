@@ -38,7 +38,6 @@ func TestLinkParserValidLinks(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			// generate random id
 			rid := randomId(11)
-			fmt.Println(rid)
 			link := fmt.Sprintf(test.link, rid)
 
 			id, start, err := LinkParser(link)
