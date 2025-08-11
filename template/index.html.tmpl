@@ -1,25 +1,94 @@
 <!DOCTYPE html>
 <html>
+
 <style>
 li {
   margin: 20px 0;
 }
+
+.buttonClear {
+  margin-right: 10px;
+}
+
+form {
+  margin-top: 10px;
+}
+
+fieldset {
+  width: 50%;
+}
+
+.text {
+  width: 99%;
+}
+
 </style>
 
 <body>
-
-<h2>Youtube links</h2>
+<h1>Youtube links</h2>
 <ul style="list-style-type:none;">
   {{range $id, $val := .}}
   <li>
-    <a id="{{$id}}" href="{{$val.Link}}">
-      {{$val.Text}}
-    </a>
+    <input type="button" class="buttonClear" value="x" onclick="deleteById({{$id}})">
+    <a id="{{$id}}" href="{{$val.Link}}"> {{$val.Text}} </a>
   </li>
   {{end}}
 
 </ul> 
-<!-- <li><a href="https://www.youtube.com/embed/CODE?vq=hd720&start=0">text</a></li> -->
+<!--<input type="button" value="test" onclick="create()">-->
+
+<form onsubmit="return formCreate(this)">
+  <fieldset>
+    <legend>Add link</legend>
+    <label for="fname">Name:</label><br>
+    <input type="text" class="text" id="fname" name="fname"><br>
+
+    <label for="flink">Link:</label><br>
+    <input type="text" class="text" id="flink" name="flink"><br><br>
+
+    <input type="submit" value="Add Link">
+  </fieldset>
+</form>
 
 </body>
+
+<script>
+function deleteById(id){
+  fetch(`/links/${id}`, {method: "DELETE"}).then(response => {
+    if (response.status == 204) {
+      document.getElementById(id).remove();
+    }
+  })
+}
+
+function formCreate(form) {
+  let fname = form.elements["fname"];
+  let flink = form.elements["flink"];
+
+  if (fname.value != "" && flink.value != "") {
+    data = JSON.stringify({link: flink.value, text:fname.value})
+    console.log(data);
+
+    fetch("/links", {method: "POST", body: data})
+      .then(response => {
+        if (response.status == 201) {
+          return response.text();
+        } else {
+          alert("error on link");
+        }
+      })
+      .then(body => {
+        console.log(body);
+      })
+
+    // clean form
+    fname.value = "";
+    flink.value = "";
+  }
+
+  // Prevents form from submitting & refreshing the page
+  return false;
+}
+
+</script>
 </html>
