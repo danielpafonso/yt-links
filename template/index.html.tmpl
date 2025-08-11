@@ -28,14 +28,13 @@ fieldset {
 <h1>Youtube links</h2>
 <ul style="list-style-type:none;">
   {{range $id, $val := .}}
-  <li>
+  <li id="{{$id}}">
     <input type="button" class="buttonClear" value="x" onclick="deleteById({{$id}})">
-    <a id="{{$id}}" href="{{$val.Link}}"> {{$val.Text}} </a>
+    <a href="{{$val.Link}}">{{$val.Text}}</a>
   </li>
   {{end}}
 
 </ul> 
-<!--<input type="button" value="test" onclick="create()">-->
 
 <form onsubmit="return formCreate(this)">
   <fieldset>
@@ -85,7 +84,6 @@ function formCreate(form) {
     fname.value = "";
     flink.value = "";
   }
-
   // Prevents form from submitting & refreshing the page
   return false;
 }
