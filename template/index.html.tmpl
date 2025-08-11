@@ -1,32 +1,25 @@
 <!DOCTYPE html>
 <html>
-
 <style>
 li {
   margin: 20px 0;
 }
-
 .buttonClear {
   margin-right: 10px;
 }
-
 form {
   margin-top: 10px;
 }
-
 fieldset {
   width: 50%;
 }
-
 .text {
   width: 99%;
 }
-
 </style>
-
 <body>
-<h1>Youtube links</h2>
-<ul style="list-style-type:none;">
+<h2>Youtube links</h2>
+<ul id="list" style="list-style-type:none;">
   {{range $id, $val := .}}
   <li id="{{$id}}">
     <input type="button" class="buttonClear" value="x" onclick="deleteById({{$id}})">
@@ -66,27 +59,36 @@ function formCreate(form) {
 
   if (fname.value != "" && flink.value != "") {
     data = JSON.stringify({link: flink.value, text:fname.value})
-    console.log(data);
-
     fetch("/links", {method: "POST", body: data})
       .then(response => {
         if (response.status == 201) {
-          return response.text();
+          return response.json();
         } else {
           alert("error on link");
         }
       })
       .then(body => {
-        console.log(body);
+        // create item
+        let list = document.getElementById("list");
+        let item = list.lastElementChild.cloneNode(true);
+        // update
+        item.id = body.id;
+        childs = item.children;
+        //   button
+        item.children[0].onclick=`deleteById(${body.id})`;
+        //   link
+        item.children[1].href=body.link;
+        item.children[1].textContent=fname.value;
+        // add item
+        list.appendChild(item);
+        // clean form
+        fname.value = "";
+        flink.value = "";
       })
 
-    // clean form
-    fname.value = "";
-    flink.value = "";
   }
   // Prevents form from submitting & refreshing the page
   return false;
 }
-
 </script>
 </html>
