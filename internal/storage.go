@@ -121,8 +121,6 @@ func (mpl mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
 	log.Printf("DELETE request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 	// read path
 	requestId := r.PathValue("id")
-	fmt.Printf("delete id: %s\n", requestId)
-
 	if _, ok := mpl[requestId]; ok {
 		delete(mpl, requestId)
 		w.WriteHeader(http.StatusNoContent)
