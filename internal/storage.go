@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -16,11 +17,15 @@ type Link struct {
 
 type postLink struct {
 	Id   string `json:"id"`
-	Text string `json:"text"`
 	Link string `json:"link"`
 }
 
 type mapLink map[string]Link
+
+const (
+	linkFullTemplate   string = "https://www.youtube.com/embed/%s?vq=hd720&start=%s"
+	linkSimpleTemplate string = "https://www.youtube.com/embed/%s?vq=hd720"
+)
 
 // File Operations
 func ReadStorage(path string) (mapLink, error) {
@@ -57,7 +62,8 @@ func WriteStorage(path string, data mapLink) error {
 
 // API Operations
 // POST
-func (mpl *mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
+func (mpl mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
+	log.Printf("POST request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 	// read body
 	body, err := io.ReadAll(r.Body)
 	if err != nil || len(body) == 0 {
@@ -66,11 +72,53 @@ func (mpl *mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(string(body))
+	// unmarshal body
+	var linkBody Link
+	err = json.Unmarshal(body, &linkBody)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(http.StatusText(http.StatusBadRequest)))
+		return
+	}
+
+	// check if fields are empty
+	if linkBody.Link == "" || linkBody.Text == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(http.StatusText(http.StatusBadRequest)))
+		return
+	}
+
+	// parse link
+	id, t, err := LinkParser(linkBody.Link)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(http.StatusText(http.StatusBadRequest)))
+		return
+	}
+	// update link inplace
+	if t == "" {
+		linkBody.Link = fmt.Sprintf(linkSimpleTemplate, id)
+	} else {
+		linkBody.Link = fmt.Sprintf(linkFullTemplate, id, t)
+	}
+
+	// update storage
+	mpl[id] = linkBody
+
+	// send response
+	rsp := postLink{
+		Id:   id,
+		Link: linkBody.Link,
+	}
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(rsp)
 }
 
 // DELETE
 func (mpl mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
+	log.Printf("DELETE request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 	// read path
 	requestId := r.PathValue("id")
 	fmt.Printf("delete id: %s\n", requestId)
