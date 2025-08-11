@@ -70,8 +70,15 @@ func (mpl *mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
 }
 
 // DELETE
-func (mpl *mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
+func (mpl mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
 	// read path
 	requestId := r.PathValue("id")
 	fmt.Printf("delete id: %s\n", requestId)
+
+	if _, ok := mpl[requestId]; ok {
+		delete(mpl, requestId)
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
