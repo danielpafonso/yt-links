@@ -34,7 +34,7 @@ func main() {
 	// Server handlers
 	// webpage
 	rootRouter := http.NewServeMux()
-	rootRouter.HandleFunc("/", template.ExecuteTemplate(data))
+	rootRouter.HandleFunc("/", template.ExecuteTemplate(*data))
 	// api endpoints
 	rootRouter.HandleFunc("POST /links", data.InsertData)
 	rootRouter.HandleFunc("DELETE /links/{id}", data.DeleteById)

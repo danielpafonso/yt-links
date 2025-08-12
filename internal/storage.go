@@ -20,7 +20,10 @@ type postLink struct {
 	Link string `json:"link"`
 }
 
-type mapLink map[string]Link
+type mapLink struct {
+	Link map[string]Link
+	Path string
+}
 
 const (
 	linkFullTemplate   string = "https://www.youtube.com/embed/%s?vq=hd720&start=%s"
@@ -28,32 +31,35 @@ const (
 )
 
 // File Operations
-func ReadStorage(path string) (mapLink, error) {
-	data := make(map[string]Link)
+func ReadStorage(path string) (*mapLink, error) {
+	data := mapLink{
+		Path: path,
+		Link: make(map[string]Link),
+	}
 	// read data
 	fdata, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			// empty configuration
-			return data, nil
+			return &data, nil
 		}
 		return nil, err
 	}
 	// unmarshal data
-	err = json.Unmarshal(fdata, &data)
+	err = json.Unmarshal(fdata, &data.Link)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return &data, nil
 }
 
-func WriteStorage(path string, data mapLink) error {
-	jsonString, err := json.MarshalIndent(data, "", "  ")
+func (mpl *mapLink) WriteStorage() error {
+	jsonString, err := json.MarshalIndent(mpl.Link, "", "  ")
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(path, jsonString, 0666)
+	err = os.WriteFile(mpl.Path, jsonString, 0666)
 	if err != nil {
 		return err
 	}
@@ -62,7 +68,7 @@ func WriteStorage(path string, data mapLink) error {
 
 // API Operations
 // POST
-func (mpl mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
+func (mpl *mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
 	log.Printf("POST request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 	// read body
 	body, err := io.ReadAll(r.Body)
@@ -104,7 +110,8 @@ func (mpl mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update storage
-	mpl[id] = linkBody
+	mpl.Link[id] = linkBody
+	mpl.WriteStorage()
 
 	// send response
 	rsp := postLink{
@@ -117,13 +124,15 @@ func (mpl mapLink) InsertData(w http.ResponseWriter, r *http.Request) {
 }
 
 // DELETE
-func (mpl mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
+func (mpl *mapLink) DeleteById(w http.ResponseWriter, r *http.Request) {
 	log.Printf("DELETE request by: %s - %s\n", r.RemoteAddr, r.RequestURI)
 	// read path
 	requestId := r.PathValue("id")
-	if _, ok := mpl[requestId]; ok {
-		delete(mpl, requestId)
+	if _, ok := mpl.Link[requestId]; ok {
+		delete(mpl.Link, requestId)
 		w.WriteHeader(http.StatusNoContent)
+		// update storage
+		mpl.WriteStorage()
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
