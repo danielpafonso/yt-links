@@ -22,7 +22,7 @@ fieldset {
 <ul id="list" style="list-style-type:none;">
   {{range $id, $val := .}}
   <li id="{{$id}}">
-    <input type="button" class="buttonClear" value="x" onclick="deleteById({{$id}})">
+    <input type="button" class="buttonClear" value="x" name="{{$id}}" onclick="deleteItem(this)">
     <a href="{{$val.Link}}">{{$val.Text}}</a>
   </li>
   {{end}}
@@ -45,7 +45,8 @@ fieldset {
 </body>
 
 <script>
-function deleteById(id){
+function deleteItem(button){
+  let id=button.name
   fetch(`/links/${id}`, {method: "DELETE"}).then(response => {
     if (response.status == 204) {
       document.getElementById(id).remove();
@@ -75,7 +76,7 @@ function formCreate(form) {
         item.id = body.id;
         childs = item.children;
         //   button
-        item.children[0].onclick=`deleteById(${body.id})`;
+        item.children[0].name=body.id;
         //   link
         item.children[1].href=body.link;
         item.children[1].textContent=fname.value;
