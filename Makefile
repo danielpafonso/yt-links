@@ -6,6 +6,10 @@ build:
 	@mkdir -p build
 	go build -trimpath -ldflags '-w -s' -o ./build/server ./cmd/
 
+build-raspi:
+	@mkdir -p build
+	GOARCH=arm GOARM=5 go build -trimpath -ldflags '-w -s' -o ./build/server ./cmd/
+
 clean:
 	rm -rf build/
 
