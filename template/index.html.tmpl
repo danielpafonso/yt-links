@@ -20,6 +20,10 @@ fieldset {
 <body>
 <h2>Youtube links</h2>
 <ul id="list" style="list-style-type:none;">
+  <li hidden id="">
+    <input type="button" class="buttonClear" value="x" name="" onclick="deleteItem(this)">
+    <a href=""></a>
+  </li>
   {{range $id, $val := .}}
   <li id="{{$id}}">
     <input type="button" class="buttonClear" value="x" name="{{$id}}" onclick="deleteItem(this)">
@@ -71,7 +75,7 @@ function formCreate(form) {
       .then(body => {
         // create item
         let list = document.getElementById("list");
-        let item = list.lastElementChild.cloneNode(true);
+        let item = list.firstElementChild.cloneNode(true);
         // update
         item.id = body.id;
         childs = item.children;
@@ -80,6 +84,8 @@ function formCreate(form) {
         //   link
         item.children[1].href=body.link;
         item.children[1].textContent=fname.value;
+        // set visibility
+        item.removeAttribute("hidden");
         // add item
         list.appendChild(item);
         // clean form
