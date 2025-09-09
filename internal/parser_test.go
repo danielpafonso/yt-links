@@ -25,7 +25,7 @@ func TestLinkParserValidLinks(t *testing.T) {
 		expectedStart string
 	}{
 		{"https://www.youtube.com/watch?v=%s", ""},
-		{"https://www.youtube.com/watch?v=%s&t=123s", "123s"},
+		{"https://www.youtube.com/watch?v=%s&t=123s", "123"},
 		{"https://www.youtube.com/watch?t=123&v=%s", "123"},
 		{"https://youtu.be/%s?si=0000000000000000", ""},
 		{"https://youtu.be/%s?si=0000000000000000&t=123", "123"},
@@ -71,6 +71,35 @@ func TestLinkParserInvalidLinks(t *testing.T) {
 			_, _, err := LinkParser(test)
 			if err == nil {
 				t.Errorf("no error when parsing %s", test)
+			}
+		})
+	}
+}
+
+func TestLinkParserTimeParser(t *testing.T) {
+	var testsMap = []struct {
+		link          string
+		expectedStart string
+	}{
+		{"https://www.youtube.com/watch?v=videoid&t=123", "123"},
+		{"https://www.youtube.com/watch?v=videoid&t=123s", "123"},
+		{"https://www.youtube.com/watch?v=videoid&t=12m", "720"},
+		{"https://www.youtube.com/watch?v=videoid&t=1m23s", "83"},
+		{"https://www.youtube.com/watch?v=videoid&t=1h4m", "3840"},
+		{"https://www.youtube.com/watch?v=videoid&t=1h3s", "3603"},
+		{"https://www.youtube.com/watch?v=videoid&t=1h5m3s", "3903"},
+	}
+
+	for _, test := range testsMap {
+		t.Run("", func(t *testing.T) {
+			// generate random id
+
+			_, start, err := LinkParser(test.link)
+			if err != nil {
+				t.Errorf("got error: %s", err)
+			}
+			if start != test.expectedStart {
+				t.Errorf("got start %s when parsing %s", start, test.link)
 			}
 		})
 	}
